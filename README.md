@@ -54,3 +54,4 @@ Add security measures such that if a user is not logged in, they cannot access t
 ## Additional Resources
 
 * [Parse User Documentation](https://parse.com/docs/js/guide#users)
+# Parse_User_Authentication
