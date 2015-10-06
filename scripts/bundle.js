@@ -32587,7 +32587,18 @@ var React = require('react');
 module.exports = React.createClass({
 	displayName: "exports",
 
+	getInitialState: function getInitialState() {
+		return { error: null };
+	},
 	render: function render() {
+		var errorElement = null;
+		if (this.state.error) {
+			errorElement = React.createElement(
+				"p",
+				{ className: "red" },
+				this.state.error
+			);
+		}
 		return React.createElement(
 			"div",
 			{ className: "container" },
@@ -32595,12 +32606,72 @@ module.exports = React.createClass({
 				"div",
 				{ className: "row" },
 				React.createElement(
-					"h1",
-					null,
-					"Login"
+					"form",
+					{ className: "col s12", onSubmit: this.onRegister },
+					React.createElement(
+						"h1",
+						null,
+						"Log In"
+					),
+					errorElement,
+					React.createElement(
+						"div",
+						{ className: "row" },
+						React.createElement(
+							"div",
+							{ className: "input-field col s12" },
+							React.createElement("input", { type: "text", ref: "email", className: "validate", id: "email_address" }),
+							React.createElement(
+								"label",
+								{ htmlFor: "first_name" },
+								"Email Address"
+							)
+						)
+					),
+					React.createElement(
+						"div",
+						{ className: "row" },
+						React.createElement(
+							"div",
+							{ className: "input-field col s12" },
+							React.createElement("input", { type: "password", ref: "password", className: "validate", id: "password" }),
+							React.createElement(
+								"label",
+								{ htmlFor: "password" },
+								"Password"
+							)
+						)
+					),
+					React.createElement(
+						"div",
+						{ className: "row" },
+						React.createElement(
+							"button",
+							{ className: "waves-effect waves-light btn" },
+							"Log In"
+						)
+					)
 				)
 			)
 		);
+	},
+	onRegister: function onRegister(e) {
+		var _this = this;
+
+		e.preventDefault();
+		var user = new Parse.User();
+		Parse.User.logIn( // logIn is built into parse, and so is signUp.
+		this.refs.email.getDOMNode().value, // this is Reacts way of getting the value from the text boxes. getDOMNode is reacts version of getElelmentById.
+		this.refs.password.getDOMNode().value, {
+			success: function success(u) {
+				_this.props.router.navigate('dashboard', { trigger: true });
+			},
+			error: function error(u, _error) {
+				_this.setState({
+					error: _error.message
+				});
+			}
+		});
 	}
 });
 
@@ -32775,6 +32846,7 @@ var HomeComponent = require('./components/HomeComponent');
 var DashboardComponent = require('./components/DashboardComponent');
 var LoginComponent = require('./components/LoginComponent');
 var RegisterComponent = require('./components/RegisterComponent');
+Parse.initialize("YQjASggvONwPLDCh4GuUJZ2X6sR2frlLFfMihpCD", "DUFH5DsehiitIFlTdOZ6q1TZGBRiOwkKo5DrEk98"); // parse is global you don't have to require. Index calls it. We must initialize Parse though, which we've done.
 
 var app = document.getElementById('app');
 
@@ -32794,7 +32866,7 @@ var Router = Backbone.Router.extend({
 		React.render(React.createElement(DashboardComponent, null), app);
 	},
 	login: function login() {
-		React.render(React.createElement(LoginComponent, null), app);
+		React.render(React.createElement(LoginComponent, { router: r }), app);
 	},
 	register: function register() {
 		React.render(React.createElement(RegisterComponent, { router: r }), app);
